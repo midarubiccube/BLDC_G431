@@ -3,14 +3,15 @@
 #include "main.h"
 #include <math.h>
 
-#include "interface/adc.h"
+#include "interface/current.h"
 #include "interface/timer.h"
 #include "melody_defines.h"
 #include "esc.h"
 
 void main_setup(void){
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_SET); // Example: Turn off onboard LED
-
+    HAL_GPIO_WritePin(SD_U_GPIO_Port, SD_U_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(SD_V_GPIO_Port, SD_V_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(SD_W_GPIO_Port, SD_W_Pin, GPIO_PIN_SET);
 
 	init_adc();
 	init_timer();

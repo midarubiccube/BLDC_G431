@@ -52,7 +52,6 @@ void timer_setDuty(float u, float v, float w) {
 
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    
 	if (htim == &htim1) {
         if (controll_task) {
             controll_task();

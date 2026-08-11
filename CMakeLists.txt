@@ -24,7 +24,7 @@ set(CMAKE_PROJECT_NAME BLDC_G431)
 set(Application_Src
     main/main_app.c
     main/FOC/FOC_calc.c
-    main/interface/adc.c
+    main/interface/current.c
     main/interface/timer.c
     main/melody.c
     main/PID/pid.c

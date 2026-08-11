@@ -29,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "main_app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -104,20 +104,9 @@ int main(void)
   MX_TIM8_Init();
   MX_CORDIC_Init();
   MX_TIM6_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-
-  HAL_GPIO_WritePin(SD_U_GPIO_Port, SD_U_Pin, GPIO_PIN_SET); 
-  HAL_GPIO_WritePin(SD_V_GPIO_Port, SD_V_Pin, GPIO_PIN_SET); 
-  HAL_GPIO_WritePin(SD_W_GPIO_Port, SD_W_Pin, GPIO_PIN_SET); 
-
-  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2125);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 2125);
-
-
+  main_setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */

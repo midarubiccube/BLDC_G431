@@ -1,4 +1,5 @@
-#include "adc.h"	
+#include "current.h"	
+
 #include "FOC/FOC_calc.h"
 #include "timer.h"
 
@@ -19,11 +20,11 @@ void init_adc(void) {
 
     HAL_OPAMP_SelfCalibrate(&hopamp1);
 	HAL_OPAMP_SelfCalibrate(&hopamp2);
-	HAL_OPAMP_SelfCalibrate(&hopamp3);
 
     HAL_OPAMP_Start(&hopamp1);
     HAL_OPAMP_Start(&hopamp2);
-    HAL_OPAMP_Start(&hopamp3);
+	
+	HAL_ADC_Start(&hadc2);
 
 	HAL_ADCEx_MultiModeStart_DMA(&hadc1, dma_adc_buf, 2);
 
@@ -41,10 +42,10 @@ void init_adc(void) {
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 	if (hadc == &hadc1) {
 		disable_irq_nest();
-		uint16_t raw_currents[3];
 		raw_currents[2] = (uint16_t)((dma_adc_buf[0] >> 16) & 0xFFFF);
 		raw_currents[1] = (uint16_t)((dma_adc_buf[1] >> 16) & 0xFFFF);
-		raw_currents[0] = (((raw_currents[1]-2200) + (raw_currents[2]-2200))*-1 + 2200);
+		raw_currents[0] = (uint16_t)(dma_adc_buf[0] & 0xFFFF);
+		//raw_currents[0] = (((raw_currents[1]-2200) + (raw_currents[2]-2200))*-1 + 2200);
 		enable_irq_nest();
 
 		current[0] = (raw_currents[0] - adc_current_offsets[0]) / 794.375757575;
@@ -52,7 +53,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 		current[2] = (raw_currents[2] - adc_current_offsets[2]) / 794.375757575;
 
 		adc_currents_ab = FOC_UVWtoAB(current[0], current[1], current[2]);
-		encoder_count = ((int16_t)(__HAL_TIM_GET_COUNTER(&htim4) - encoder_offset))/-4096.0 * 7.0 * 2.0 *M_PI;
+		encoder_count = ((int16_t)(__HAL_TIM_GET_COUNTER(&htim8) - encoder_offset))/-4096.0 * 7.0 * 2.0 *M_PI;
 		encoder_sin = sinf(encoder_count);
 		encoder_cos = cosf(encoder_count);
 		adc_currents_dq = FOC_ABtoDQ(&adc_currents_ab, encoder_sin, encoder_cos);

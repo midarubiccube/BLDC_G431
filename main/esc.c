@@ -5,7 +5,7 @@
 #include "interface/timer.h"
 
 #include "PID/PID.h"
-#include "interface/adc.h"
+#include "interface/current.h"
 
 float theta = 0.0f;
 float voltage_amp = 0.07f; // 電圧振幅 0.8 (最大1.0だが安全マージン)
@@ -76,43 +76,52 @@ void motor_controller_setup() {
 }
 
 void khz_task() {
-	int32_t absolute_position =revolution * 4096 + __HAL_TIM_GET_COUNTER(&htim4);
+	int32_t absolute_position =revolution * 4096 + __HAL_TIM_GET_COUNTER(&htim8);
 	encoder_diff =	(absolute_position - prev_encoder) * -1;
-	q_target = PID_calc(&pid_q, -100, (float)encoder_diff);
+	q_target = PID_calc(&pid_q, 100, (float)encoder_diff);
 	prev_encoder = absolute_position;
 }
 
-void MotorControlTask(){
-	static const float adv_learning_rate = 0.00005f * 100.0f;
-	static float adv_coef = 0.0f;
+void MotorControlTask() {
+    theta += 0.008f; 
+    if (theta > 6.283185f) theta -= 6.283185f;
 
-	FOC_DQ _dq_current = adc_currents_dq;
+    // 2. 電圧ベクトル生成 (逆Park変換の簡易版)
+    // 本来は Id, Iq から計算しますが、テストなので直接 Alpha, Beta を生成
+    float valpha = voltage_amp * cosf(theta);
+    float vbeta  = voltage_amp * sinf(theta);
+    
+    // 1. 逆Clarke変換 (alpha, beta -> U, V, W)
+    // Va = Valpha
+    // Vb = -0.5 * Valpha + (sqrt(3)/2) * Vbeta
+    // Vc = -0.5 * Valpha - (sqrt(3)/2) * Vbeta
+    
+    // sqrt(3)/2 = 0.8660254f
+    float Va = valpha;
+    float Vb = -0.5f * valpha + 0.8660254f * vbeta;
+    float Vc = -0.5f * valpha - 0.8660254f * vbeta;
 
-	FOC_DQ dq_pid_out;
-	dq_pid_out.d = PID_calc(&pid_current_d, 0, _dq_current.d);
-	dq_pid_out.q = PID_calc(&pid_current_q, q_target, _dq_current.q);
+    // 2. Min-Max法によるSVPWM (コモンモード電圧の注入)
+    // 3相の中で一番大きい電圧と小さい電圧を見つける
+    float V_max = fmaxf(Va, fmaxf(Vb, Vc));
+    float V_min = fminf(Va, fminf(Vb, Vc));
+    
+    // 鞍型にするためのオフセット電圧
+    float V_common = -0.5f * (V_max + V_min);
 
-	if (dq_pid_out.q > 0.05f || dq_pid_out.q < -0.05f) {
-		adv_coef -= adv_learning_rate * dq_pid_out.d;
-		if (adv_coef < 0.0f) adv_coef = 0.0f;
-	}
-
-	float adv_angle = dq_pid_out.q * adv_coef;
-	float adv_sin = arm_sin_f32(adv_angle);
-	float adv_cos = arm_cos_f32(adv_angle);
-    FOC_DQ dq_out = {0};
-	dq_out.d = dq_pid_out.d * adv_cos - dq_pid_out.q * adv_sin;
-	dq_out.q = dq_pid_out.d * adv_sin + dq_pid_out.q * adv_cos;
-
-	float norm;
-	arm_sqrt_f32(dq_out.d * dq_out.d + dq_out.q * dq_out.q, &norm);
-	if (norm > 1.0f) {
-		dq_out.d /= norm;
-		dq_out.q /= norm;
-	}
-    const FOC_AB ab_out = {0};
-    const FOC_UVW uvw_out = {0};
-	FOC_DQtoAB(&dq_out, encoder_sin, encoder_cos, &ab_out);
-	FOC_ABtoUVW(&ab_out, &uvw_out);
-	timer_setDuty(uvw_out.u, uvw_out.v, uvw_out.w);
+    // 3. オフセットを加算してデューティ比に変換
+    // 入力(-1.0~1.0) -> CCR(0~ARR)
+    // Center Alignedなので、duty 0.0 が中心、-1.0が0、+1.0がARRになるようにマップする
+    // 式: CCR = ( (V + V_common) + 1.0 ) * 0.5 * ARR
+    
+    // クリップ処理 (過変調防止)
+    // ※厳密には正規化が必要ですが、テストなので簡易リミッタで
+    float u_out = Va + V_common;
+    float v_out = Vb + V_common;
+    float w_out = Vc + V_common;
+    
+    // レジスタ書き込み
+    TIM1->CCR1 = (uint32_t)((u_out + 1.0f) * 0.5f * PWM_PERIOD_COUNTS);
+    TIM1->CCR2 = (uint32_t)((v_out + 1.0f) * 0.5f * PWM_PERIOD_COUNTS);
+    TIM1->CCR3 = (uint32_t)((w_out + 1.0f) * 0.5f * PWM_PERIOD_COUNTS);
 }

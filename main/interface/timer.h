@@ -2,9 +2,6 @@
 
 #include "tim.h"
 
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
 extern int16_t encoder_offset;
 
 void init_timer(void);
