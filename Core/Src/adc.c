@@ -50,11 +50,11 @@ void MX_ADC1_Init(void)
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.GainCompensation = 0;
-  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.NbrOfConversion = 2;
+  hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T1_TRGO;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
@@ -80,19 +80,10 @@ void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_VOPAMP1;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_12CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Regular Channel
-  */
-  sConfig.Channel = ADC_CHANNEL_15;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -141,7 +132,7 @@ void MX_ADC2_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_VOPAMP2;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_12CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
@@ -160,7 +151,6 @@ static uint32_t HAL_RCC_ADC12_CLK_ENABLED=0;
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
   if(adcHandle->Instance==ADC1)
   {
@@ -183,15 +173,6 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
       __HAL_RCC_ADC12_CLK_ENABLE();
     }
 
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    /**ADC1 GPIO Configuration
-    PB0     ------> ADC1_IN15
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_0;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
     /* ADC1 DMA Init */
     /* ADC1 Init */
     hdma_adc1.Instance = DMA1_Channel1;
@@ -202,7 +183,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
     hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
     hdma_adc1.Init.Mode = DMA_CIRCULAR;
-    hdma_adc1.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_adc1.Init.Priority = DMA_PRIORITY_VERY_HIGH;
     if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
     {
       Error_Handler();
@@ -260,11 +241,6 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     if(HAL_RCC_ADC12_CLK_ENABLED==0){
       __HAL_RCC_ADC12_CLK_DISABLE();
     }
-
-    /**ADC1 GPIO Configuration
-    PB0     ------> ADC1_IN15
-    */
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_0);
 
     /* ADC1 DMA DeInit */
     HAL_DMA_DeInit(adcHandle->DMA_Handle);

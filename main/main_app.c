@@ -13,9 +13,10 @@ void main_setup(void){
 	HAL_GPIO_WritePin(SD_V_GPIO_Port, SD_V_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SD_W_GPIO_Port, SD_W_Pin, GPIO_PIN_SET);
 
-	init_adc();
 	init_timer();
-    
+	init_adc();
+	set_encoder_offset();
+	
     set_control_task(melodyControlTask);
 	melody_freq = MELODY_C;
 	melody_volume = 0.5f;
