@@ -263,17 +263,17 @@ void TIM1_UP_TIM16_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM8 update interrupt.
+  * @brief This function handles TIM8 trigger and commutation interrupts.
   */
-void TIM8_UP_IRQHandler(void)
+void TIM8_TRG_COM_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM8_UP_IRQn 0 */
+  /* USER CODE BEGIN TIM8_TRG_COM_IRQn 0 */
 
-  /* USER CODE END TIM8_UP_IRQn 0 */
+  /* USER CODE END TIM8_TRG_COM_IRQn 0 */
   HAL_TIM_IRQHandler(&htim8);
-  /* USER CODE BEGIN TIM8_UP_IRQn 1 */
+  /* USER CODE BEGIN TIM8_TRG_COM_IRQn 1 */
 
-  /* USER CODE END TIM8_UP_IRQn 1 */
+  /* USER CODE END TIM8_TRG_COM_IRQn 1 */
 }
 
 /**

@@ -17,8 +17,6 @@ void init_timer(void) {
 
 	HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
 	__HAL_TIM_ENABLE_IT(&htim8, TIM_IT_IDX);
-
-	encoder_offset = __HAL_TIM_GET_COUNTER(&htim8);
 }
 
 void set_control_task(void (*task)()) {
@@ -26,19 +24,10 @@ void set_control_task(void (*task)()) {
 }
 
 void set_encoder_offset() {
-	float duty_amp = 0.20f;
-
-	uint16_t pwm_u = (uint16_t)(PWM_PERIOD_COUNTS * (0.5f + duty_amp));
-	uint16_t pwm_v = (uint16_t)(PWM_PERIOD_COUNTS * (0.5f - duty_amp * 0.5f));
-	uint16_t pwm_w = (uint16_t)(PWM_PERIOD_COUNTS * (0.5f - duty_amp * 0.5f));
-
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_u);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, pwm_v);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, pwm_w);
-	HAL_Delay(100);
-	__HAL_TIM_SET_COMPARE (&htim1, TIM_CHANNEL_1, 0);
-	__HAL_TIM_SET_COMPARE (&htim1, TIM_CHANNEL_2, 0);
-	__HAL_TIM_SET_COMPARE (&htim1, TIM_CHANNEL_3, 0);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 1700);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 2125);
+	HAL_Delay(200);
 	encoder_offset = __HAL_TIM_GET_COUNTER(&htim8);
 }
 void set_khz_task(void (*task)()) {

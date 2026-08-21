@@ -25,6 +25,8 @@ volatile int32_t revolution = 0;
 
 int32_t prev_encoder = 0;
 int16_t encoder_diff = 0;
+FOC_DQ dq_pid_out;
+
 
 void HAL_TIMEx_EncoderIndexCallback(TIM_HandleTypeDef *htim)
 {
@@ -36,8 +38,8 @@ void HAL_TIMEx_EncoderIndexCallback(TIM_HandleTypeDef *htim)
 
 
 static const PIDConfig PIDCONFIG_CURRENT = {
-		0.03f,
-		20.0f,
+		0.005f,
+		10.0f,
 		0.0f,
 		0.00005f,
 		-10.0f,
@@ -46,27 +48,27 @@ static const PIDConfig PIDCONFIG_CURRENT = {
 		1.0f,
 		-1.0f,
 		1.0f,
-		-5.0f,
-		5.0f,
+		-0.5f,
+		0.5f,
 		0.0f,
 		0.0f
 };
 
 static const PIDConfig PIDCONFIG_Q = {
-		0.3f,
-		0.5f,
+		0.08f,
+		0.05f,
 		0.0f,
 		0.0001f,
 		-1000.0f,
 		1000.0f,
-		-2.0f,
+		-20.0f,
+		20.0f,
+		-3.0f,
+		3.0f,
+		-20.0f,
 		20.0f,
 		-1.0f,
 		1.0f,
-		-5.0f,
-		5.0f,
-		0.0f,
-		0.0f
 };
 
 void motor_controller_setup() {
@@ -76,9 +78,9 @@ void motor_controller_setup() {
 }
 
 void khz_task() {
-	int32_t absolute_position =revolution * 4096 + __HAL_TIM_GET_COUNTER(&htim8);
+	int32_t absolute_position =revolution * 4096 + __HAL_TIM_GET_COUNTER(&htim8) + encoder_offset;
 	encoder_diff =	(absolute_position - prev_encoder) * -1;
-	q_target = PID_calc(&pid_q, 100, (float)encoder_diff);
+	q_target = PID_calc(&pid_q, 500, (float)encoder_diff);
 	prev_encoder = absolute_position;
 }
 
@@ -89,7 +91,6 @@ void MotorControlTask(){
 	FOC_DQ _dq_current = adc_currents_dq;
 
 
-	FOC_DQ dq_pid_out;
 	dq_pid_out.d = PID_calc(&pid_current_d, 0, _dq_current.d);
 	dq_pid_out.q = PID_calc(&pid_current_q, q_target, _dq_current.q);
 

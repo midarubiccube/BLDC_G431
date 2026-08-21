@@ -351,8 +351,8 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* tim_encoderHandle)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* TIM8 interrupt Init */
-    HAL_NVIC_SetPriority(TIM8_UP_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM8_UP_IRQn);
+    HAL_NVIC_SetPriority(TIM8_TRG_COM_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM8_TRG_COM_IRQn);
   /* USER CODE BEGIN TIM8_MspInit 1 */
 
   /* USER CODE END TIM8_MspInit 1 */
@@ -481,7 +481,7 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* tim_encoderHandle)
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6|GPIO_PIN_8);
 
     /* TIM8 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(TIM8_UP_IRQn);
+    HAL_NVIC_DisableIRQ(TIM8_TRG_COM_IRQn);
   /* USER CODE BEGIN TIM8_MspDeInit 1 */
 
   /* USER CODE END TIM8_MspDeInit 1 */
