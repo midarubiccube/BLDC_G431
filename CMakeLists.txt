@@ -29,6 +29,7 @@ set(Application_Src
     main/melody.c
     main/PID/pid.c
     main/esc.c
+    main/interface/canfd.cpp
 )
 
 set(Include_Dirs

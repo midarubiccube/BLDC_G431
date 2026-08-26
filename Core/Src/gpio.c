@@ -55,7 +55,7 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pins : SD_W_Pin SD_V_Pin SD_U_Pin */
   GPIO_InitStruct.Pin = SD_W_Pin|SD_V_Pin|SD_U_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 

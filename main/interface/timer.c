@@ -1,9 +1,10 @@
 #include "timer.h"
+#include "math.h"
+#include "FOC/FOC_calc.h"
 
 
 static void (*controll_task)() = NULL;
 static void (*khz_task)() = NULL;
-int16_t encoder_offset = 0;
 #define PWM_PERIOD_COUNTS 4250.0f
 
 void init_timer(void) {
@@ -24,12 +25,13 @@ void set_control_task(void (*task)()) {
 }
 
 void set_encoder_offset() {
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 1700);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 1900);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 1900);
 	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 2125);
-	HAL_Delay(200);
-	encoder_offset = __HAL_TIM_GET_COUNTER(&htim8);
+    HAL_Delay(200);
+    __HAL_TIM_SET_COUNTER(&htim8, 146);
 }
+
 void set_khz_task(void (*task)()) {
     __HAL_TIM_SET_COUNTER(&htim6, 0);
     __HAL_TIM_CLEAR_IT(&htim6, TIM_IT_UPDATE);

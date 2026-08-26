@@ -35,7 +35,6 @@ void main_setup(void){
 	set_khz_task(khz_task);
 }
 
-
 void disable_irq_nest() {
 	if (irq_cnt == 0) __disable_irq();
 	if (irq_cnt < UINT32_MAX) irq_cnt++;
