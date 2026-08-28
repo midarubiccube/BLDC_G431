@@ -25,10 +25,14 @@ void set_control_task(void (*task)()) {
 }
 
 void set_encoder_offset() {
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 1900);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 1900);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2125);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125);
 	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 2125);
-    HAL_Delay(200);
+	for (int i = 0; i < 400; i++) {
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2125-i);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125-i);
+		HAL_Delay(1);
+	}
     __HAL_TIM_SET_COUNTER(&htim8, 146);
 }
 
@@ -49,8 +53,6 @@ void timer_setDuty(float u, float v, float w) {
 	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125.0f - 1750.0f * v);
 	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 2125.0f - 1750.0f * w);
 }
-
-
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim1) {

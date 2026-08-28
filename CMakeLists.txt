@@ -22,7 +22,7 @@ endif()
 set(CMAKE_PROJECT_NAME BLDC_G431)
 
 set(Application_Src
-    main/main_app.c
+    main/main_app.cpp
     main/FOC/FOC_calc.c
     main/interface/current.c
     main/interface/timer.c
@@ -36,8 +36,6 @@ set(Include_Dirs
     ${CMAKE_SOURCE_DIR}/Core/driver
     ${CMAKE_SOURCE_DIR}/main
 )
-
-
 
 # Enable compile command to ease indexing with e.g. clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)

@@ -46,4 +46,13 @@ public:
            (byte <= 32) ? (byte - 24 + 7) / 8 + 12 :
            (byte - 32 + 15) / 16 + 13;
 	}
+
+	static inline uint8_t dlc2len(uint32_t dlc){
+    	if (dlc <= 8)
+        	return dlc;
+    	else if (dlc == 9)
+       	 return 12;
+    	else
+        	return 1 << (dlc - 6);
+	}
 };

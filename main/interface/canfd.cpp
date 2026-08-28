@@ -35,9 +35,9 @@ bool CANFD::tx(CANFD_Frame &tx_data){
 	}
 
 	// Put Tx data to Txfifo
-	if (HAL_FDCAN_AddMessageToTxFifoQ(fdcan_, &TxHeader, TxData)!= HAL_OK) {
+	/*if (HAL_FDCAN_AddMessageToTxFifoQ(fdcan_, &TxHeader, TxData)!= HAL_OK) {
 		Error_Handler();
-	}
+	}*/
 	return true;
 }
 
@@ -63,7 +63,7 @@ void CANFD::rx_interrupt_task(void){
     }
 	
 	rx_buff[head].id = RxHeader.Identifier;
-	rx_buff[head].size = RxHeader.DataLength;
+	rx_buff[head].size = dlc2len(RxHeader.DataLength);
  	memcpy(&rx_buff[head].data, fdcan1RxData, 64);
 	rx_buff[head].is_free = false;
 	rx_buff[head].is_remote = RxHeader.RxFrameType == FDCAN_REMOTE_FRAME;

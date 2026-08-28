@@ -5,8 +5,6 @@
  *      Author: Doraemonjayo
  */
 
-#include "main_app.h"
-
 #include "melody_defines.h"
 #include "FOC/FOC_calc.h"
 #include "interface/timer.h"

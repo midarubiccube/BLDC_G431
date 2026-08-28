@@ -7,6 +7,13 @@
 extern FOC_AB adc_currents_ab;
 extern FOC_DQ adc_currents_dq;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void MotorControlTask();
 void motor_controller_setup();
 void khz_task();
+#ifdef __cplusplus
+}
+#endif

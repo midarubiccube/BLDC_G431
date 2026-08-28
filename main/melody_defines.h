@@ -14,4 +14,8 @@
 extern float melody_freq;
 extern float melody_volume;
 
+#ifdef __cplusplus
+extern "C" void melodyControlTask();
+#else
 void melodyControlTask();
+#endif
