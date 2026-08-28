@@ -12,6 +12,15 @@ void main_loop(void);
 void disable_irq_nest();
 void enable_irq_nest();
 
+#pragma pack(push, 1)
+struct BLDCPacket {
+    uint8_t mode;
+    uint16_t rps_target;          
+    float  angle_target;
+    uint16_t rps;          
+};
+#pragma pack(pop)
+
 #ifdef __cplusplus
 }
 #endif

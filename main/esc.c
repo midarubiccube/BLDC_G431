@@ -18,6 +18,7 @@ static PID pid_q;
 extern float encoder_sin;
 extern float encoder_cos;
 float q_target = 0.0f;
+uint16_t encoder_target = 0;
 
 extern FOC_DQ adc_currents_dq;
 
@@ -71,7 +72,7 @@ void motor_controller_setup() {
 void khz_task() {
 	int16_t absolute_position = __HAL_TIM_GET_COUNTER(&htim8);
 	encoder_diff = absolute_position - prev_encoder;
-	q_target = PID_calc(&pid_q, 50, (float)encoder_diff);
+	q_target = PID_calc(&pid_q, encoder_target, (float)encoder_diff);
 	prev_encoder = absolute_position;
 }
 
