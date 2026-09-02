@@ -12,6 +12,15 @@ void main_loop(void);
 void disable_irq_nest();
 void enable_irq_nest();
 
+enum class DataType : uint8_t {
+    COMMON_COMAND = 0x01,
+    POWERBOARD_COMANND = 0x02,
+    BLCD_COMANND = 0x03,
+    MOTORBOARDC_COMAND = 0x04,
+    // Add other data types as needed
+};
+
+
 #pragma pack(push, 1)
 struct BLDCPacket {
     uint8_t mode;

@@ -47,12 +47,10 @@ public:
            (byte - 32 + 15) / 16 + 13;
 	}
 
-	static inline uint8_t dlc2len(uint32_t dlc){
-    	if (dlc <= 8)
-        	return dlc;
-    	else if (dlc == 9)
-       	 return 12;
-    	else
-        	return 1 << (dlc - 6);
+	uint8_t dlc2len(uint32_t dlc)
+	{
+    	static const uint8_t dlc_to_len[16] = {0,1,2,3,4,5,6,7,9,12,16, 20,24,32,48,64}  // DLC 0
+    	if (dlc > 15)return 0;
+    	return dlc_to_len[dlc];
 	}
 };
