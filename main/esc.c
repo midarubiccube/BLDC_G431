@@ -18,7 +18,7 @@ static PID pid_q;
 extern float encoder_sin;
 extern float encoder_cos;
 float q_target = 0.0f;
-uint16_t encoder_target = 0;
+int16_t encoder_target = 0;
 
 extern FOC_DQ adc_currents_dq;
 

@@ -25,14 +25,10 @@ void set_control_task(void (*task)()) {
 }
 
 void set_encoder_offset() {
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2125);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 1800);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 1800);
 	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 2125);
-	for (int i = 0; i < 400; i++) {
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2125-i);
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125-i);
-		HAL_Delay(1);
-	}
+	HAL_Delay(400);
     __HAL_TIM_SET_COUNTER(&htim8, 146);
 }
 

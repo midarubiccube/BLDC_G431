@@ -39,15 +39,14 @@ extern "C" void main_setup(void){
     HAL_GPIO_WritePin(SD_U_GPIO_Port, SD_U_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SD_V_GPIO_Port, SD_V_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SD_W_GPIO_Port, SD_W_Pin, GPIO_PIN_SET);
+	ID id;
+	id.fields.board_num = 0;
+	id.fields.data_type = DataType::BLCD_COMANND;
 
 	canfd = new CANFD(&hfdcan1);
+	canfd->set_filter_mask(0, id.id, 0xFF);
 	canfd->start();
 
-	CANFD_Frame test;
-	test.id=10;
-	test.size = 32;
-	memset(test.data, 0, 64);
-	canfd->tx(test);
 
 	init_timer();
 	init_adc();
@@ -70,20 +69,13 @@ extern "C" void main_setup(void){
     set_control_task(MotorControlTask);
 	set_khz_task(khz_task);
 
-	ID id;
-	id.fields.priority = 0;
-	id.fields.board_num = 1;
-	id.fields.data_type = DataType::BLCD_COMANND;
-
 	while (1) {
 		if (canfd->rx_available()) {
 			CANFD_Frame rx_frame;
 			if (canfd->rx(rx_frame)) {
-				if (rx_frame.id == id.id) {
-					if (rx_frame.size >= sizeof(BLDCPacket)) {
-						BLDCPacket* packet = reinterpret_cast<BLDCPacket*>(rx_frame.data);
-						encoder_target = packet->rps_target;
-					}
+				if (rx_frame.size >= sizeof(BLDCPacket)) {
+					BLDCPacket* packet = reinterpret_cast<BLDCPacket*>(rx_frame.data);
+					encoder_target = packet->rps_target;
 				}
 			}
 		}
