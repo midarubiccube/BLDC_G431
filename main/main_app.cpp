@@ -6,10 +6,12 @@
 #include "interface/current.h"
 #include "interface/timer.h"
 #include "interface/canfd.hpp"
+#include "interface/FullColorLED.hpp"
 #include "melody_defines.h"
 #include "esc.h"
 
 CANFD* canfd;
+FullColorLED led{&htim3, TIM_CHANNEL_4};
 extern uint16_t encoder_target;
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
@@ -21,7 +23,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 enum class DataType : uint8_t {
     COMMON_COMAND = 0x01,
     POWERBOARD_COMANND = 0x02,
-    BLCD_COMANND = 0x03,
+    BLDC_COMANND = 0x03,
     MOTORBOARDC_COMAND = 0x04,
     // Add other data types as needed
 };
@@ -36,17 +38,20 @@ union ID {
 };
 
 extern "C" void main_setup(void){
+	led.set_rgb(255, 0, 0);
+  	led.start();
+	
     HAL_GPIO_WritePin(SD_U_GPIO_Port, SD_U_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SD_V_GPIO_Port, SD_V_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SD_W_GPIO_Port, SD_W_Pin, GPIO_PIN_SET);
+
 	ID id;
 	id.fields.board_num = 0;
-	id.fields.data_type = DataType::BLCD_COMANND;
+	id.fields.data_type = DataType::BLDC_COMANND;
 
 	canfd = new CANFD(&hfdcan1);
 	canfd->set_filter_mask(0, id.id, 0xFF);
 	canfd->start();
-
 
 	init_timer();
 	init_adc();

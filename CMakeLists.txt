@@ -26,6 +26,7 @@ set(Application_Src
     main/FOC/FOC_calc.c
     main/interface/current.c
     main/interface/timer.c
+    main/interface/FullColorLED.cpp
     main/melody.c
     main/PID/pid.c
     main/esc.c

@@ -259,13 +259,13 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
     /* TIM3_CH4 Init */
     hdma_tim3_ch4.Instance = DMA1_Channel2;
     hdma_tim3_ch4.Init.Request = DMA_REQUEST_TIM3_CH4;
-    hdma_tim3_ch4.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_tim3_ch4.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_tim3_ch4.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_tim3_ch4.Init.MemInc = DMA_MINC_ENABLE;
     hdma_tim3_ch4.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-    hdma_tim3_ch4.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-    hdma_tim3_ch4.Init.Mode = DMA_NORMAL;
-    hdma_tim3_ch4.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_tim3_ch4.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    hdma_tim3_ch4.Init.Mode = DMA_CIRCULAR;
+    hdma_tim3_ch4.Init.Priority = DMA_PRIORITY_MEDIUM;
     if (HAL_DMA_Init(&hdma_tim3_ch4) != HAL_OK)
     {
       Error_Handler();
@@ -378,7 +378,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     GPIO_InitStruct.Pin = GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF10_TIM3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
