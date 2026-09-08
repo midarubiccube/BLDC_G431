@@ -45,13 +45,18 @@ extern "C" void main_setup(void){
 	HAL_GPIO_WritePin(SD_V_GPIO_Port, SD_V_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SD_W_GPIO_Port, SD_W_Pin, GPIO_PIN_SET);
 
-	ID id;
-	id.fields.board_num = 0;
-	id.fields.data_type = DataType::BLDC_COMANND;
+	ID own_id;
+	own_id.fields.board_num = 2;
+	own_id.fields.data_type = DataType::BLDC_COMANND;
 
 	canfd = new CANFD(&hfdcan1);
-	canfd->set_filter_mask(0, id.id, 0xFF);
+	canfd->set_filter_mask(0, own_id.id, 0xFF);
 	canfd->start();
+	
+	CANFD_Frame remote;
+	remote.is_remote = true;
+	remote.id = own_id.id;
+	canfd->tx(remote);
 
 	init_timer();
 	init_adc();

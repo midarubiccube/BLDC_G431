@@ -35,9 +35,9 @@ bool CANFD::tx(CANFD_Frame &tx_data){
 	}
 
 	// Put Tx data to Txfifo
-	/*if (HAL_FDCAN_AddMessageToTxFifoQ(fdcan_, &TxHeader, TxData)!= HAL_OK) {
+	if (HAL_FDCAN_AddMessageToTxFifoQ(fdcan_, &TxHeader, TxData)!= HAL_OK) {
 		Error_Handler();
-	}*/
+	}
 	return true;
 }
 
