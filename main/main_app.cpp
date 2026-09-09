@@ -10,6 +10,9 @@
 #include "melody_defines.h"
 #include "esc.h"
 
+#include "ID_format.h"
+#include "BLDC_format.h"
+
 CANFD* canfd;
 FullColorLED led{&htim3, TIM_CHANNEL_4};
 extern uint16_t encoder_target;
@@ -19,23 +22,6 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 		canfd->rx_interrupt_task();
 	}
 }
-
-enum class DataType : uint8_t {
-    COMMON_COMAND = 0x01,
-    POWERBOARD_COMANND = 0x02,
-    BLDC_COMANND = 0x03,
-    MOTORBOARDC_COMAND = 0x04,
-    // Add other data types as needed
-};
-
-union ID {
-    uint16_t id;
-    struct {
-        uint16_t board_num : 4;
-        DataType data_type : 4;
-        uint16_t priority : 3;
-    } fields;
-};
 
 extern "C" void main_setup(void){
 	led.set_rgb(255, 0, 0);
@@ -47,7 +33,7 @@ extern "C" void main_setup(void){
 
 	ID own_id;
 	own_id.fields.board_num = 2;
-	own_id.fields.data_type = DataType::BLDC_COMANND;
+	own_id.fields.data_type = DataType::BLDC_COMMAND;
 
 	canfd = new CANFD(&hfdcan1);
 	canfd->set_filter_mask(0, own_id.id, 0xFF);

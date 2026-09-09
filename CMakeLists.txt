@@ -36,6 +36,7 @@ set(Application_Src
 set(Include_Dirs
     ${CMAKE_SOURCE_DIR}/Core/driver
     ${CMAKE_SOURCE_DIR}/main
+    ${CMAKE_SOURCE_DIR}/main/format/include
 )
 
 # Enable compile command to ease indexing with e.g. clangd
