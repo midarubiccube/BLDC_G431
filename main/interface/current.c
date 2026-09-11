@@ -8,7 +8,7 @@ void enable_irq_nest();
 
 FOC_AB adc_currents_ab;
 FOC_DQ adc_currents_dq;
-int encoder_resolution = 4096;
+extern int encoder_resolution;
 
 float encoder_count = 0;
 float encoder_sin;

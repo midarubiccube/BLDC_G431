@@ -15,8 +15,16 @@
 #include "stm32g4xx_hal.h"
 
 CANFD* canfd;
+ID own_id;
+
 FullColorLED led{&htim3, TIM_CHANNEL_4};
 extern float encoder_target;
+extern int16_t encoder_diff;
+
+bool monitorflag = false;
+int monitor_freq = 10;
+float gear_ratio = 0;
+int encoder_resolution = 4096;
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
     if((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET) {
@@ -30,8 +38,7 @@ extern "C" void main_setup(void){
 	HAL_GPIO_WritePin(SD_V_GPIO_Port, SD_V_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SD_W_GPIO_Port, SD_W_Pin, GPIO_PIN_SET);
 
-	ID own_id;
-	own_id.fields.board_num = 3;
+	own_id.fields.board_num = 5;
 	own_id.fields.data_type = DataType::BLDC_COMMAND;
 
 	canfd = new CANFD(&hfdcan1);
@@ -72,25 +79,48 @@ extern "C" void main_setup(void){
 
     motor_controller_setup();
     set_control_task(MotorControlTask);
-	set_khz_task(rps_task);
+	set_khz_task(khz_task);
 
 	while (1) {
-		if (canfd->rx_available()) {
-			CANFD_Frame rx_frame;
-			if (canfd->rx(rx_frame)) {
-				if (rx_frame.size >= sizeof(BLDCTX_CANPacket)) {
-					BLDCTX_CANPacket* packet = reinterpret_cast<BLDCTX_CANPacket*>(rx_frame.data);
-					encoder_target = packet->rps_target*72.0;
-				}
-			}
-		}
-		HAL_Delay(5);
+		HAL_Delay(1000);
 	}
 }
 
 void khz_task() {
+	static uint32_t counter;
+	static uint32_t last_count;
+	if (canfd->rx_available()) {
+		CANFD_Frame rx_frame;
+		if (canfd->rx(rx_frame)) {
+			if (rx_frame.size >= sizeof(BLDCTX_CANPacket)) {
+				BLDCTX_CANPacket* packet = reinterpret_cast<BLDCTX_CANPacket*>(rx_frame.data);
+				gear_ratio = packet->gear_ratio;
+				encoder_resolution = packet->encoder_resolution;
+				encoder_target = packet->rps_target * ((gear_ratio * encoder_resolution) / 1000.0f);
+				monitorflag = packet->monitor_flag;
+				monitor_freq = packet->monitor_freq;
+				last_count = counter;
+			}
+		}
+	}
 
+	if(monitorflag) {
+		if (counter % monitor_freq == 0) {
+			BLDCRX_CANPacket packet;
+			packet.rps = (encoder_diff * 1000.0f) / (gear_ratio * encoder_resolution);
+			CANFD_Frame tx_frame;
+			tx_frame.id = own_id.id;
+			tx_frame.size = sizeof(BLDCRX_CANPacket);
+			memcpy(tx_frame.data, &packet, sizeof(BLDCRX_CANPacket));
+			canfd->tx(tx_frame);
+		}
+	}
 	rps_task();
+
+	counter++;
+	if (counter - last_count > 1000) {
+		encoder_target = 0;
+	}
 }
 
 
