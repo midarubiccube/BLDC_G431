@@ -30,6 +30,9 @@ void set_encoder_offset() {
 	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 2125);
 	HAL_Delay(400);
     __HAL_TIM_SET_COUNTER(&htim8, 146);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2125);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2125);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 2125);
 }
 
 void set_khz_task(void (*task)()) {
