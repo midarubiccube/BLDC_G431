@@ -9,6 +9,8 @@ extern "C" {
 void main_setup(void);
 void main_loop(void);
 
+void khz_task();
+
 void disable_irq_nest();
 void enable_irq_nest();
 

@@ -24,8 +24,6 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 }
 
 extern "C" void main_setup(void){
-	led.set_rgb(255, 0, 0);
-  	led.start();
 	
     HAL_GPIO_WritePin(SD_U_GPIO_Port, SD_U_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SD_V_GPIO_Port, SD_V_Pin, GPIO_PIN_SET);
@@ -38,15 +36,13 @@ extern "C" void main_setup(void){
 	canfd = new CANFD(&hfdcan1);
 	canfd->set_filter_mask(0, own_id.id, 0xFF);
 	canfd->start();
-	
-	CANFD_Frame remote;
-	remote.is_remote = true;
-	remote.id = own_id.id;
-	canfd->tx(remote);
 
 	init_timer();
 	init_adc();
 	set_encoder_offset();
+
+	led.set_rgb(255, 0, 0);
+  	led.start();
 	
     set_control_task(melodyControlTask);
 	melody_freq = MELODY_C;
@@ -61,23 +57,41 @@ extern "C" void main_setup(void){
 	melody_volume = 0.0f;
 	HAL_Delay(200);
 	
+	CANFD_Frame remote;
+	remote.is_remote = true;
+	remote.id = own_id.id;
+	canfd->tx(remote);
+
+	while(!canfd->rx_available()) HAL_Delay(100);
+	CANFD_Frame rx_frame;
+	canfd->rx(rx_frame);
+
+	led.set_rgb(0, 255, 0);
+
+	melody_freq = MELODY_C;
+	melody_volume = 0.5f;
+	HAL_Delay(200);
+	melody_freq = MELODY_D;
+	melody_volume = 0.5;
+	HAL_Delay(200);
+	melody_volume = 0.0f;
+	
     motor_controller_setup();
     set_control_task(MotorControlTask);
 	set_khz_task(khz_task);
-
-	while (1) {
-		if (canfd->rx_available()) {
-			CANFD_Frame rx_frame;
-			if (canfd->rx(rx_frame)) {
-				if (rx_frame.size >= sizeof(BLDCPacket)) {
-					BLDCPacket* packet = reinterpret_cast<BLDCPacket*>(rx_frame.data);
-					encoder_target = packet->rps_target;
-				}
-			}
-		}
-		HAL_Delay(10);
-	}
 }
+
+void khz_task() {
+	if (canfd->rx_available()) {
+		CANFD_Frame rx_frame;
+		canfd->rx(rx_frame);
+		
+		BLDCPacket* packet = reinterpret_cast<BLDCPacket*>(rx_frame.data);
+		encoder_target = packet->rps_target;
+	}
+	rps_task();
+}
+
 
 extern "C" void disable_irq_nest() {
 	if (irq_cnt == 0) __disable_irq();

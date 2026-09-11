@@ -13,7 +13,7 @@ extern "C" {
 
 void MotorControlTask();
 void motor_controller_setup();
-void khz_task();
+void rps_task();
 #ifdef __cplusplus
 }
 #endif

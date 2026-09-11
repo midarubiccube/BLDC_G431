@@ -69,7 +69,7 @@ void motor_controller_setup() {
     PID_init(&pid_q, &PIDCONFIG_Q);
 }
 
-void khz_task() {
+void rps_task() {
 	int16_t absolute_position = __HAL_TIM_GET_COUNTER(&htim8);
 	encoder_diff = absolute_position - prev_encoder;
 	q_target = PID_calc(&pid_q, encoder_target, (float)encoder_diff);

@@ -8,6 +8,7 @@ void enable_irq_nest();
 
 FOC_AB adc_currents_ab;
 FOC_DQ adc_currents_dq;
+int encoder_resolution = 4096;
 
 float encoder_count = 0;
 float encoder_sin;
@@ -50,7 +51,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 		current[0] = ((-current[1]) + (-current[2]));
 
 		adc_currents_ab = FOC_UVWtoAB(current[0], current[1], current[2]);
-		encoder_count = ((int16_t)(__HAL_TIM_GET_COUNTER(&htim8)))/-4096.0 * 7.0 * 2.0 *M_PI;
+		encoder_count = ((int16_t)(__HAL_TIM_GET_COUNTER(&htim8)))/-encoder_resolution * 7.0 * 2.0 *M_PI;
 		encoder_sin = arm_sin_f32(encoder_count);
 		encoder_cos = arm_cos_f32(encoder_count);
 		adc_currents_dq = FOC_ABtoDQ(&adc_currents_ab, encoder_sin, encoder_cos);
